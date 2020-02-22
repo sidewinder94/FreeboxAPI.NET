@@ -114,5 +114,12 @@ namespace Freebox.Modules
                 return response;
             }
         }
+
+        //public async Task<bool> SessionClose()
+        //{
+        //    var uri = new Uri($"{_freeboxApi.ApiInfo.ApiUri}{BaseModuleUri}logout/");
+
+        //    var response = await PostAsync<>
+        //}
     }
 }
