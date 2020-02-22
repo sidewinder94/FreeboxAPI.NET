@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Freebox.Data.Modules.Login.Requests;
 using Freebox.Data.Modules.Login;
 using Microsoft.Extensions.Configuration;
+using Freebox.Data;
 
 namespace FreeboxApi.Tests
 {
@@ -13,6 +14,7 @@ namespace FreeboxApi.Tests
     public class FreeboxAPITests
     {
         private IConfigurationRoot Configuration { get; set; }
+        private AppInfo appInfo;
 
         [TestInitialize]
         public void TestInitialize()
@@ -20,6 +22,12 @@ namespace FreeboxApi.Tests
             var builder = new ConfigurationBuilder();
             builder.AddUserSecrets<FreeboxAPITests>();
             this.Configuration = builder.Build();
+
+            this.appInfo = new AppInfo(
+                appId: "Unit Tests FreeboxAPI.NET",
+                appName: "Unit Tests FreeboxAPI.NET",
+                appVersion: "0.0.7",
+                deviceName: "Unit Test Runner");
         }
 
         [TestMethod()]
@@ -28,7 +36,7 @@ namespace FreeboxApi.Tests
             var ctSource = new CancellationTokenSource();
             ctSource.CancelAfter(5000);
 
-            var api = FreeboxAPI.GetFreeboxApiInstance("Unit Tests FreeboxAPI.NET", ctSource.Token).Result;
+            var api = FreeboxAPI.GetFreeboxApiInstance(appInfo, ctSource.Token).Result;
             
             Assert.IsNotNull(api.ApiInfo.BoxModelName);
         }
@@ -39,14 +47,9 @@ namespace FreeboxApi.Tests
             var ctSource = new CancellationTokenSource();
             ctSource.CancelAfter(5000);
 
-            var api = FreeboxAPI.GetFreeboxApiInstance("Unit Tests FreeboxAPI.NET", ctSource.Token).Result;
+            var api = FreeboxAPI.GetFreeboxApiInstance(appInfo, ctSource.Token).Result;
 
-            var authorizeResult = api.Login.Authorize(new AuthorizeCreationRequest()
-            {
-                AppName = "Unit Tests FreeboxAPI.NET",
-                AppVersion = "0.0.7",
-                DeviceName = "Unit Test Runner"
-            }).Result;
+            var authorizeResult = api.Login.Authorize().Result;
 
             var authorizeTrack = api.Login.TrackAuthorization(authorizeResult.Result).Result;
 
@@ -72,7 +75,7 @@ namespace FreeboxApi.Tests
             var ctSource = new CancellationTokenSource();
             ctSource.CancelAfter(5000);
 
-            var api = FreeboxAPI.GetFreeboxApiInstance("Unit Tests FreeboxAPI.NET", ctSource.Token).Result;
+            var api = FreeboxAPI.GetFreeboxApiInstance(appInfo, ctSource.Token).Result;
 
             var appToken = this.Configuration.GetSection("app_token").Value;
 

@@ -26,14 +26,15 @@ namespace Freebox.Modules
             this._freeboxApi = api;
         }
 
-        public async Task<ApiResponse<AuthorizeResponse>> Authorize(AuthorizeCreationRequest request)
+        public async Task<ApiResponse<AuthorizeResponse>> Authorize()
         {
-            if (request == null)
+            var request = new AuthorizeCreationRequest()
             {
-                throw new ArgumentNullException(nameof(request));
-            }
-
-            request.AppId = this._freeboxApi.AppId;
+                AppId = _freeboxApi.AppInfo.AppId,
+                AppName = _freeboxApi.AppInfo.AppName,
+                AppVersion = _freeboxApi.AppInfo.AppVersion,
+                DeviceName = _freeboxApi.AppInfo.DeviceName
+            };
 
             var uri = new Uri($"{this._freeboxApi.ApiInfo.ApiUri}{BaseModuleUri}authorize/");
 
@@ -82,7 +83,7 @@ namespace Freebox.Modules
 
                 var sessionStart = new SessionStart()
                 {
-                    AppId = this._freeboxApi.AppId,
+                    AppId = this._freeboxApi.AppInfo.AppId,
                     Password = challengeToReturn
                 };
 

@@ -18,7 +18,7 @@ namespace Freebox
 
         public Login Login { get => this._login.Value; }
 
-        public string AppId { get; private set; }
+        public AppInfo AppInfo { get; private set; }
 
         private FreeboxAPI()
         {
@@ -29,13 +29,13 @@ namespace Freebox
         /// Method allowing to discover a Freebox on the network
         /// </summary>
         /// <returns></returns>
-        public static async Task<FreeboxAPI> GetFreeboxApiInstance(string appId, CancellationToken ct)
+        public static async Task<FreeboxAPI> GetFreeboxApiInstance(AppInfo appInfo, CancellationToken ct)
         {
             ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
 
             var result = new FreeboxAPI()
             {
-                AppId = appId
+                AppInfo = appInfo
             };
 
             using (var mdns = new MulticastService())
