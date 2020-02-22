@@ -19,7 +19,7 @@ namespace Freebox.Modules
 
         private readonly FreeboxAPI _freeboxApi;
 
-        public bool LoggedIn { get; internal set} = false;
+        public bool LoggedIn { get; internal set;  } = false;
 
         public Permissions Permissions { get; internal set; } = null;
 
