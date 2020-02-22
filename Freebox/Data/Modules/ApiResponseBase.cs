@@ -16,5 +16,8 @@ namespace Freebox.Data.Modules
 
         [JsonProperty("msg", NullValueHandling = NullValueHandling.Ignore)]
         public string Message { get; set; }
+
+        [JsonProperty("uuid", NullValueHandling = NullValueHandling.Ignore)]
+        public string Uid { get; set; }
     }
 }

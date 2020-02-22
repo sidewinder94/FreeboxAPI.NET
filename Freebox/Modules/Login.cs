@@ -19,7 +19,9 @@ namespace Freebox.Modules
 
         private readonly FreeboxAPI _freeboxApi;
 
-        internal bool LoggedIn = false;
+        public bool LoggedIn { get; internal set} = false;
+
+        public Permissions Permissions { get; internal set; } = null;
 
         internal Login(FreeboxAPI api)
         {
@@ -89,9 +91,12 @@ namespace Freebox.Modules
 
                 var response = await PostAsync<SessionStart, OpenedSession>(sessionStart, new Uri($"{uri}session/"));
 
-                Console.WriteLine(response);
+                this.LoggedIn = response.Success;
+
+                this.Permissions = response.Result.Permissions;
+
+                return response;
             }
-            throw new NotImplementedException();
         }
     }
 }
