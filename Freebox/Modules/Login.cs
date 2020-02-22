@@ -8,6 +8,8 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Globalization;
+using System.Threading;
+using Freebox.Data.Modules.Login;
 
 namespace Freebox.Modules
 {
@@ -19,7 +21,7 @@ namespace Freebox.Modules
 
         private readonly FreeboxAPI _freeboxApi;
 
-        public bool LoggedIn { get; internal set;  } = false;
+        public bool LoggedIn { get; internal set; } = false;
 
         public Permissions Permissions { get; internal set; } = null;
 
@@ -55,6 +57,20 @@ namespace Freebox.Modules
 
             var uri = new Uri($"{_freeboxApi.ApiInfo.ApiUri}{BaseModuleUri}authorize/{authorizeResponse.TrackId}");
             return await GetAsync<AuthorizeProgressResponse>(uri);
+        }
+
+        public async Task<ApiResponse<AuthorizeProgressResponse>> WaitForAuthorization(AuthorizeResponse authorizeResponse, CancellationToken ct)
+        {
+            var authorizeTrack = await this.TrackAuthorization(authorizeResponse);
+
+            while (authorizeTrack.Result.Status == AuthorizeStatus.Pending && !ct.IsCancellationRequested)
+            {
+                authorizeTrack = await this.TrackAuthorization(authorizeResponse);
+
+                await Task.Delay(200);
+            }
+
+            return authorizeTrack;
         }
 
         public async Task<ApiResponse<OpenedSession>> SessionStart(AuthorizeResponse authorizeResponse)

@@ -67,6 +67,7 @@ namespace FreeboxApi.Tests
                 || authorizeTrack.Result.Status == AuthorizeStatus.Unknown
                 || (authorizeTrack.Result.Status == AuthorizeStatus.Pending && ctAuth.IsCancellationRequested));
 
+            System.Console.WriteLine(authorizeResult.Result.AppToken);
         }
 
         [TestMethod()]
