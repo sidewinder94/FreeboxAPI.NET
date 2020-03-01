@@ -19,28 +19,28 @@ namespace Freebox.Modules
     {
         private const string BaseModuleUri = "v6/login/";
 
-        private readonly FreeboxAPI _freeboxApi;
-
         public bool LoggedIn { get; internal set; } = false;
 
-        public Permissions Permissions { get; internal set; } = null;
+        public string SessionToken { get; internal set; }
 
-        internal Login(FreeboxAPI api)
+        public FreeboxPermissions Permissions { get; internal set; } = null;
+
+        internal Login(FreeboxAPI api) : base (api)
         {
-            this._freeboxApi = api;
+            
         }
 
         public async Task<ApiResponse<AuthorizeResponse>> Authorize()
         {
             var request = new AuthorizeCreationRequest()
             {
-                AppId = _freeboxApi.AppInfo.AppId,
-                AppName = _freeboxApi.AppInfo.AppName,
-                AppVersion = _freeboxApi.AppInfo.AppVersion,
-                DeviceName = _freeboxApi.AppInfo.DeviceName
+                AppId = FreeboxApi.AppInfo.AppId,
+                AppName = FreeboxApi.AppInfo.AppName,
+                AppVersion = FreeboxApi.AppInfo.AppVersion,
+                DeviceName = FreeboxApi.AppInfo.DeviceName
             };
 
-            var uri = new Uri($"{this._freeboxApi.ApiInfo.ApiUri}{BaseModuleUri}authorize/");
+            var uri = new Uri($"{this.FreeboxApi.ApiInfo.ApiUri}{BaseModuleUri}authorize/");
 
             return await PostAsync<AuthorizeCreationRequest, AuthorizeResponse>(request, uri);
         }
@@ -55,7 +55,7 @@ namespace Freebox.Modules
                         $" Id please provide a {typeof(AuthorizeResponse).Name} object with at least the {nameof(AuthorizeResponse.TrackId)} property filled");
             }
 
-            var uri = new Uri($"{_freeboxApi.ApiInfo.ApiUri}{BaseModuleUri}authorize/{authorizeResponse.TrackId}");
+            var uri = new Uri($"{FreeboxApi.ApiInfo.ApiUri}{BaseModuleUri}authorize/{authorizeResponse.TrackId}");
             return await GetAsync<AuthorizeProgressResponse>(uri);
         }
 
@@ -73,25 +73,30 @@ namespace Freebox.Modules
             return authorizeTrack;
         }
 
-        public async Task<ApiResponse<OpenedSession>> SessionStart(AuthorizeResponse authorizeResponse)
+        public async Task<ApiResponse<OpenedSession>> SessionOpen(AuthorizeResponse authorizeResponse)
         {
             if (authorizeResponse == null)
             {
                 throw new ArgumentNullException(nameof(authorizeResponse));
             }
 
-            return await this.SessionStart(authorizeResponse.AppToken);
+            return await this.SessionOpen(authorizeResponse.AppToken);
         }
 
         [SuppressMessage("Security", "CA5350:Ne pas utiliser d'algorithmes de chiffrement faibles", Justification = "Imposed by the documentation")]
-        public async Task<ApiResponse<OpenedSession>> SessionStart(string appSecret)
+        public async Task<ApiResponse<OpenedSession>> SessionOpen(string appSecret = null)
         {
-            if (string.IsNullOrWhiteSpace(appSecret))
+            if (string.IsNullOrWhiteSpace(appSecret) && string.IsNullOrWhiteSpace(this.SessionToken))
             {
-                throw new ArgumentNullException(nameof(appSecret));
+                throw new ArgumentNullException(nameof(appSecret), LocalizedStrings.AppTokenNotProvided);
             }
 
-            var uri = new Uri($"{_freeboxApi.ApiInfo.ApiUri}{BaseModuleUri}");
+            if(!string.IsNullOrWhiteSpace(appSecret) && string.IsNullOrWhiteSpace(this.FreeboxApi.AppInfo.AppToken))
+            {
+                this.FreeboxApi.AppInfo.AppToken = appSecret;
+            }
+
+            var uri = new Uri($"{FreeboxApi.ApiInfo.ApiUri}{BaseModuleUri}");
 
             var challengeResponse = await GetAsync<LoginStart>(uri);
 
@@ -101,7 +106,7 @@ namespace Freebox.Modules
 
                 var sessionStart = new SessionStart()
                 {
-                    AppId = this._freeboxApi.AppInfo.AppId,
+                    AppId = this.FreeboxApi.AppInfo.AppId,
                     Password = challengeToReturn
                 };
 
@@ -109,17 +114,21 @@ namespace Freebox.Modules
 
                 this.LoggedIn = response.Success;
 
+                this.SessionToken = response.Result.SessionToken;
+
                 this.Permissions = response.Result.Permissions;
 
                 return response;
             }
         }
 
-        //public async Task<bool> SessionClose()
-        //{
-        //    var uri = new Uri($"{_freeboxApi.ApiInfo.ApiUri}{BaseModuleUri}logout/");
+        public async Task<ApiResponse<EmptyResponse>> SessionClose()
+        {
+            var uri = new Uri($"{FreeboxApi.ApiInfo.ApiUri}{BaseModuleUri}logout/");
 
-        //    var response = await PostAsync<>
-        //}
+            var response = await PostAsync<object, EmptyResponse>(null, uri);
+
+            return response;
+        }
     }
 }

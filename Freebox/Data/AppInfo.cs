@@ -7,12 +7,13 @@ namespace Freebox.Data
 {
     public class AppInfo
     {
-        public AppInfo(string appId, string appName, string appVersion, string deviceName)
+        public AppInfo(string appId, string appName, string appVersion, string deviceName, string appToken = null)
         {
             AppId = appId ?? throw new ArgumentNullException(nameof(appId));
             AppName = appName ?? throw new ArgumentNullException(nameof(appName));
             AppVersion = appVersion ?? throw new ArgumentNullException(nameof(appVersion));
             DeviceName = deviceName ?? throw new ArgumentNullException(nameof(deviceName));
+            AppToken = appToken;
         }
 
         [NotNull]
@@ -26,5 +27,7 @@ namespace Freebox.Data
 
         [NotNull]
         public string DeviceName { get; }
+
+        public string AppToken { get; internal set; }
     }
 }

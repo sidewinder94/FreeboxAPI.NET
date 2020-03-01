@@ -2,7 +2,7 @@
 
 namespace Freebox.Data.Modules.Login.Responses
 {
-    public class Permissions
+    public class FreeboxPermissions
     {
         [JsonProperty("settings")]
         public bool Settings { get; set; }

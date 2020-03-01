@@ -14,15 +14,23 @@ namespace Freebox.Modules
     /// </summary>
     public abstract class BaseModule
     {
-        protected static async Task<ApiResponse<TRes>> PostAsync<TReq, TRes>(TReq request, Uri uri) where TRes : IFreeboxApiResponse
+        public BaseModule(FreeboxAPI api)
+        {
+            this.FreeboxApi = api;
+        }
+
+        protected FreeboxAPI FreeboxApi { get; }
+
+        protected async Task<ApiResponse<TRes>> PostAsync<TReq, TRes>(TReq request, Uri uri) where TRes : IFreeboxApiResponse
         {
             using (var handler = new HttpClientHandler())
             {
                 handler.ServerCertificateCustomValidationCallback = CertificateHelper.ValidateCertificate;
 
-                using (var httpClient = new HttpClient(handler))
+                using (var httpClient = this.SetHttpClientHeaders(new HttpClient(handler)))
                 using (var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json"))
                 {
+                    
 
                     var response = await httpClient.PostAsync(uri, content);
 
@@ -39,13 +47,13 @@ namespace Freebox.Modules
                 }
             }
         }
-        protected static async Task<ApiResponse<TRes>> GetAsync<TRes>(Uri uri) where TRes : IFreeboxApiResponse
+        protected async Task<ApiResponse<TRes>> GetAsync<TRes>(Uri uri) where TRes : IFreeboxApiResponse
         {
             using (var handler = new HttpClientHandler())
             {
                 handler.ServerCertificateCustomValidationCallback = CertificateHelper.ValidateCertificate;
 
-                using (var httpClient = new HttpClient(handler))
+                using (var httpClient = this.SetHttpClientHeaders(new HttpClient(handler)))
                 {
                     var response = await httpClient.GetAsync(uri);
 
@@ -66,6 +74,18 @@ namespace Freebox.Modules
             {
                 throw new FreeboxException(result, response);
             }
+        }
+
+        private HttpClient SetHttpClientHeaders(HttpClient client)
+        {
+            if (string.IsNullOrWhiteSpace(this.FreeboxApi.Login.SessionToken))
+            {
+                return client;
+            }
+
+            client.DefaultRequestHeaders.Add("X-Fbx-App-Auth", this.FreeboxApi.Login.SessionToken);
+
+            return client;
         }
     }
 }

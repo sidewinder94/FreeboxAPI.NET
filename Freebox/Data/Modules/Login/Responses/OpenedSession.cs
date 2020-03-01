@@ -14,7 +14,7 @@ namespace Freebox.Data.Modules.Login.Responses
         public string Challenge { get; set; }
 
         [JsonProperty("permissions")]
-        public Permissions Permissions { get; set; }
+        public FreeboxPermissions Permissions { get; set; }
 
     }
 }

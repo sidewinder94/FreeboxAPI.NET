@@ -27,7 +27,8 @@ namespace FreeboxApi.Tests
                 appId: "Unit Tests FreeboxAPI.NET",
                 appName: "Unit Tests FreeboxAPI.NET",
                 appVersion: "0.0.7",
-                deviceName: "Unit Test Runner");
+                deviceName: "Unit Test Runner",
+                this.Configuration.GetSection("app_token").Value);
         }
 
         [TestMethod()]
@@ -80,9 +81,27 @@ namespace FreeboxApi.Tests
 
             var appToken = this.Configuration.GetSection("app_token").Value;
 
-            var r = api.Login.SessionStart(appToken).Result;
+            var r = api.Login.SessionOpen(appToken).Result;
 
             Assert.IsTrue(r.Success);
+            Assert.IsTrue(api.Login.LoggedIn);
+        }
+
+        [TestMethod()]
+        public void TestLogout()
+        {
+            var ctSource = new CancellationTokenSource();
+            ctSource.CancelAfter(5000);
+
+            var api = FreeboxAPI.GetFreeboxApiInstance(appInfo, ctSource.Token).Result;
+
+            var r = api.Login.SessionOpen().Result;
+
+            Assert.IsTrue(r.Success);
+
+            var lo = api.Login.SessionClose().Result;
+
+            Assert.IsTrue(lo.Success);
         }
 
     }
