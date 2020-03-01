@@ -9,14 +9,14 @@ jobs:
 
     steps:
     - name: Setup Nuget.exe
-      uses: warrenbuckley/Setup-Nuget@v1
-    - uses: actions/checkout@v2
+      uses: NuGet/setup-nuget@v1.0.2    
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1.101
     - name: setup-msbuild
       uses: microsoft/setup-msbuild@v1
+    - uses: actions/checkout@v2
     - name: Restore packages
       run: nuget restore Freebox.sln  
     - name: Build with msbuild
