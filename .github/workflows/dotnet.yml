@@ -24,4 +24,4 @@ jobs:
     - name: Add Github nuget Repository
       run: nuget sources Add -Name Github -Source https://nuget.pkg.github.com/sidewinder94/index.json -username sidewinder94 -Password ${{ secrets.GITHUB_TOKEN }} -StorePasswordInClearText
     - name: Push package
-      run: nuget push Freebox\bin\Release\FreeboxAPI.NET.0.0.1.nupkg --source GitHub
+      run: nuget push Freebox\bin\Release\FreeboxAPI.NET.*.nupkg -Source GitHub
