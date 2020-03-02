@@ -68,5 +68,14 @@ namespace Freebox {
                 return ResourceManager.GetString("AppTokenNotProvided", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à The application needs to be logged in to use this method.
+        /// </summary>
+        internal static string AuthentificationExceptionNotLogged {
+            get {
+                return ResourceManager.GetString("AuthentificationExceptionNotLogged", resourceCulture);
+            }
+        }
     }
 }

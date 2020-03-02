@@ -42,7 +42,7 @@ namespace Freebox.Modules
 
             var uri = new Uri($"{this.FreeboxApi.ApiInfo.ApiUri}{BaseModuleUri}authorize/");
 
-            return await PostAsync<AuthorizeCreationRequest, AuthorizeResponse>(request, uri);
+            return await PostAsync<AuthorizeCreationRequest, AuthorizeResponse>(request, uri, bypassAutoLogin: true);
         }
 
         public async Task<ApiResponse<AuthorizeProgressResponse>> TrackAuthorization(AuthorizeResponse authorizeResponse)
@@ -56,7 +56,7 @@ namespace Freebox.Modules
             }
 
             var uri = new Uri($"{FreeboxApi.ApiInfo.ApiUri}{BaseModuleUri}authorize/{authorizeResponse.TrackId}");
-            return await GetAsync<AuthorizeProgressResponse>(uri);
+            return await GetAsync<AuthorizeProgressResponse>(uri, bypassAutoLogin: true);
         }
 
         public async Task<ApiResponse<AuthorizeProgressResponse>> WaitForAuthorization(AuthorizeResponse authorizeResponse, CancellationToken ct)
@@ -86,7 +86,7 @@ namespace Freebox.Modules
         [SuppressMessage("Security", "CA5350:Ne pas utiliser d'algorithmes de chiffrement faibles", Justification = "Imposed by the documentation")]
         public async Task<ApiResponse<OpenedSession>> SessionOpen(string appSecret = null)
         {
-            if (string.IsNullOrWhiteSpace(appSecret) && string.IsNullOrWhiteSpace(this.SessionToken))
+            if (string.IsNullOrWhiteSpace(appSecret) && string.IsNullOrWhiteSpace(this.FreeboxApi.AppInfo.AppToken))
             {
                 throw new ArgumentNullException(nameof(appSecret), LocalizedStrings.AppTokenNotProvided);
             }
@@ -96,13 +96,17 @@ namespace Freebox.Modules
                 this.FreeboxApi.AppInfo.AppToken = appSecret;
             }
 
+            var appToken = appSecret ?? this.FreeboxApi.AppInfo.AppToken;
+
             var uri = new Uri($"{FreeboxApi.ApiInfo.ApiUri}{BaseModuleUri}");
 
-            var challengeResponse = await GetAsync<LoginStart>(uri);
+            var challengeResponse = await GetAsync<LoginStart>(uri, bypassAutoLogin: true);
 
-            using (var hmac = new HMACSHA1(Encoding.UTF8.GetBytes(appSecret)))
+            using (var hmac = new HMACSHA1(Encoding.UTF8.GetBytes(appToken)))
             {
-                var challengeToReturn = hmac.ComputeHash(Encoding.UTF8.GetBytes(challengeResponse.Result.Challenge)).Aggregate("", (s, e) => s + string.Format(CultureInfo.InvariantCulture, "{0:x2}", e), s => s);
+                var challengeToReturn = hmac
+                    .ComputeHash(Encoding.UTF8.GetBytes(challengeResponse.Result.Challenge))
+                    .Aggregate("", (s, e) => s + string.Format(CultureInfo.InvariantCulture, "{0:x2}", e), s => s);
 
                 var sessionStart = new SessionStart()
                 {
@@ -110,7 +114,7 @@ namespace Freebox.Modules
                     Password = challengeToReturn
                 };
 
-                var response = await PostAsync<SessionStart, OpenedSession>(sessionStart, new Uri($"{uri}session/"));
+                var response = await PostAsync<SessionStart, OpenedSession>(sessionStart, new Uri($"{uri}session/"), bypassAutoLogin: true);
 
                 this.LoggedIn = response.Success;
 

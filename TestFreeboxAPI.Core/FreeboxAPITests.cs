@@ -104,5 +104,19 @@ namespace FreeboxApi.Tests
             Assert.IsTrue(lo.Success);
         }
 
+        [TestMethod()]
+        public void TestAutoLogin()
+        {
+            var ctSource = new CancellationTokenSource();
+            ctSource.CancelAfter(5000);
+
+            var api = FreeboxAPI.GetFreeboxApiInstance(appInfo, ctSource.Token).Result;
+
+            // The session close method should clear the session token and indicate we are logged out, the test will evolve when it's the case
+            var lo = api.Login.SessionClose().Result;
+
+            Assert.IsFalse(string.IsNullOrWhiteSpace(api.Login.SessionToken));
+            Assert.IsTrue(lo.Success);
+        }
     }
 }

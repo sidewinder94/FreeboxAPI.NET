@@ -120,4 +120,7 @@
   <data name="AppTokenNotProvided" xml:space="preserve">
     <value>Appplication token should be provided either as a parameter or in the AppInfo object</value>
   </data>
+  <data name="AuthentificationExceptionNotLogged" xml:space="preserve">
+    <value>The application needs to be logged in to use this method</value>
+  </data>
 </root>
