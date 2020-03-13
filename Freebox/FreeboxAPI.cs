@@ -14,15 +14,20 @@ namespace Freebox
     {
         private readonly Lazy<Login> _login;
 
+        private readonly Lazy<RRD> _rrd;
+
         public ApiInfo ApiInfo { get; private set; }
 
         public Login Login { get => this._login.Value; }
+
+        public RRD RRD { get => this._rrd.Value; }
 
         public AppInfo AppInfo { get; private set; }
 
         private FreeboxAPI()
         {
             this._login = new Lazy<Login>(() => new Login(this));
+            this._rrd = new Lazy<RRD>(() => new RRD(this));
         }
 
         /// <summary>

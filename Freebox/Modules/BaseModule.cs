@@ -31,7 +31,6 @@ namespace Freebox.Modules
                 using (var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json"))
                 {
                     
-
                     var response = await httpClient.PostAsync(uri, content);
 
                     var result = JsonConvert.DeserializeObject<ApiResponse<TRes>>(await response.Content.ReadAsStringAsync());
