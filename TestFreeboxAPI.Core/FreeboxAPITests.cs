@@ -8,6 +8,8 @@ using Microsoft.Extensions.Configuration;
 using Freebox.Data;
 using Freebox.Data.Modules.RRD.Requests;
 using System;
+using Freebox.Data.Modules.RRD.Responses;
+using System.Linq;
 
 namespace FreeboxApi.Tests
 {
@@ -104,6 +106,9 @@ namespace FreeboxApi.Tests
             var lo = api.Login.SessionClose().Result;
 
             Assert.IsTrue(lo.Success);
+            Assert.IsTrue(string.IsNullOrWhiteSpace(api.Login.SessionToken));
+            Assert.IsFalse(api.Login.LoggedIn);
+            Assert.IsTrue(lo.Success);
         }
 
         [TestMethod()]
@@ -118,16 +123,15 @@ namespace FreeboxApi.Tests
 
             Assert.IsTrue(session.Success);
 
-            var rrd = api.RRD.GetRrd(new Fetch
+            var rrd = api.RRD.GetRrd(new Fetch<Net>
             {
                 DateStart = DateTime.Now.AddMinutes(-1),
                 DateEnd = DateTime.Now,
-                Db = RrdDb.Net,
                 Fields = RrdFields.NetRateDown | RrdFields.NetRateUp | RrdFields.NetBwDown | RrdFields.NetBwUp
             }).Result ;
 
             Assert.IsTrue(rrd.Success);
-
+            Assert.IsTrue(rrd.Result.Data.Any(d => d.RateDown > 0));
             Assert.IsTrue(api.Login.SessionClose().Result.Success);
 
         }
@@ -141,9 +145,10 @@ namespace FreeboxApi.Tests
             var api = FreeboxAPI.GetFreeboxApiInstance(appInfo, ctSource.Token).Result;
 
             // The session close method should clear the session token and indicate we are logged out, the test will evolve when it's the case
-            var lo = api.RRD.GetRrd(new Fetch { Db = RrdDb.Net }).Result;
+            var lo = api.RRD.GetRrd(new Fetch<Net>()).Result;
 
             Assert.IsFalse(string.IsNullOrWhiteSpace(api.Login.SessionToken));
+            Assert.IsTrue(api.Login.LoggedIn);
             Assert.IsTrue(lo.Success);
         }
     }

@@ -16,9 +16,9 @@ namespace Freebox.Modules
         {
         }
 
-        public async Task<ApiResponse<RrdResponse>> GetRrd(Fetch fetch)
+        public async Task<ApiResponse<RrdResponse<T>>> GetRrd<T>(Fetch<T> fetch) where T : RrdResponseDbIdent, new()
         {
-            return await this.PostAsync<Fetch,RrdResponse>(fetch, new Uri($"{FreeboxApi.ApiInfo.ApiUri}{BaseModuleUri}"));
+            return await this.PostAsync<Fetch<T>,RrdResponse<T>>(fetch, new Uri($"{FreeboxApi.ApiInfo.ApiUri}{BaseModuleUri}"));
         }
 
     }

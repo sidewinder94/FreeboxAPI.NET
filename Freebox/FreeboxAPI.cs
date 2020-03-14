@@ -30,6 +30,20 @@ namespace Freebox
             this._rrd = new Lazy<RRD>(() => new RRD(this));
         }
 
+        ~FreeboxAPI()
+        {
+            // If we are logged in and the api object is destructing, we do try to log out.
+            if (this.Login.LoggedIn)
+            {
+                try
+                {
+                    _ = this.Login.SessionClose().Result;
+                }
+                finally
+                {}
+            }
+        }
+
         /// <summary>
         /// Method allowing to discover a Freebox on the network
         /// </summary>
@@ -44,7 +58,7 @@ namespace Freebox
             };
 
             using (var mdns = new MulticastService())
-            using(var sd = new ServiceDiscovery(mdns))
+            using (var sd = new ServiceDiscovery(mdns))
             {
                 mdns.NetworkInterfaceDiscovered += (s, e) =>
                 {

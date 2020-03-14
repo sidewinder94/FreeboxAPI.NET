@@ -132,6 +132,10 @@ namespace Freebox.Modules
 
             var response = await PostAsync<object, EmptyResponse>(null, uri);
 
+            this.LoggedIn = false;
+            this.SessionToken = null;
+            this.Permissions = new FreeboxPermissions();
+
             return response;
         }
     }

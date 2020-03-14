@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Freebox.Data.Modules.RRD.Responses
 {
-    public class RrdResponse : IFreeboxApiResponse
+    public class RrdResponse<T> : IFreeboxApiResponse where T : RrdResponseDbIdent
     {
         [JsonProperty("date_start")]
         private long dateStart { get; set; }
@@ -14,7 +14,11 @@ namespace Freebox.Data.Modules.RRD.Responses
         private long dateEnd { get; set; }
 
         [JsonProperty("data")]
-        public List<object> Data { get; set; }
+        public List<T> Data { get; set; }
+
+        public DateTime DateStart => DateTimeOffset.FromUnixTimeSeconds(this.dateStart).DateTime.ToLocalTime();
+
+        public DateTime DateEnd => DateTimeOffset.FromUnixTimeSeconds(this.dateEnd).DateTime.ToLocalTime();
 
     }
 }

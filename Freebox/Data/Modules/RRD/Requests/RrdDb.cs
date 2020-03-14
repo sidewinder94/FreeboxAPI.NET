@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Freebox.Data.Modules.RRD.Requests
 {
-    public enum RrdDb
+    internal enum RrdDb
     {
         Net,
         Temp,
