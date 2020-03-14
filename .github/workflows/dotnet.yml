@@ -23,5 +23,7 @@ jobs:
       run: msbuild /m /p:Configuration=Release /r Freebox.sln
     - name: Add Github nuget Repository
       run: nuget sources Add -Name Github -Source https://nuget.pkg.github.com/sidewinder94/index.json -username sidewinder94 -Password ${{ secrets.GITHUB_TOKEN }} -StorePasswordInClearText
+    - name: Delete package if existing
+      run: nuget delete FreeboxAPI.NET -Source GitHub
     - name: Push package
       run: nuget push Freebox\bin\Release\FreeboxAPI.NET.*.nupkg -Source GitHub
