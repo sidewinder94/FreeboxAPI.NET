@@ -6,6 +6,8 @@ using Freebox.Data.Modules.Login.Requests;
 using Freebox.Data.Modules.Login;
 using Microsoft.Extensions.Configuration;
 using Freebox.Data;
+using Freebox.Data.Modules.RRD.Requests;
+using System;
 
 namespace FreeboxApi.Tests
 {
@@ -105,6 +107,32 @@ namespace FreeboxApi.Tests
         }
 
         [TestMethod()]
+        public void TestRrd()
+        {
+            var ctSource = new CancellationTokenSource();
+            ctSource.CancelAfter(5000);
+
+            var api = FreeboxAPI.GetFreeboxApiInstance(appInfo, ctSource.Token).Result;
+
+            var session = api.Login.SessionOpen().Result;
+
+            Assert.IsTrue(session.Success);
+
+            var rrd = api.RRD.GetRrd(new Fetch
+            {
+                DateStart = DateTime.Now.AddMinutes(-1),
+                DateEnd = DateTime.Now,
+                Db = RrdDb.Net,
+                Fields = RrdFields.NetRateDown | RrdFields.NetRateUp | RrdFields.NetBwDown | RrdFields.NetBwUp
+            }).Result ;
+
+            Assert.IsTrue(rrd.Success);
+
+            Assert.IsTrue(api.Login.SessionClose().Result.Success);
+
+        }
+
+        [TestMethod()]
         public void TestAutoLogin()
         {
             var ctSource = new CancellationTokenSource();
@@ -113,7 +141,7 @@ namespace FreeboxApi.Tests
             var api = FreeboxAPI.GetFreeboxApiInstance(appInfo, ctSource.Token).Result;
 
             // The session close method should clear the session token and indicate we are logged out, the test will evolve when it's the case
-            var lo = api.Login.SessionClose().Result;
+            var lo = api.RRD.GetRrd(new Fetch { Db = RrdDb.Net }).Result;
 
             Assert.IsFalse(string.IsNullOrWhiteSpace(api.Login.SessionToken));
             Assert.IsTrue(lo.Success);

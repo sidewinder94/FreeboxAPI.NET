@@ -23,9 +23,9 @@ namespace Freebox.Modules
 
         protected async Task<ApiResponse<TRes>> PostAsync<TReq, TRes>(TReq request, Uri uri, bool bypassAutoLogin = false) where TRes : IFreeboxApiResponse
         {
-            using (var handler = new HttpClientHandler())
+            using (var handler = new WinHttpHandler())
             {
-                handler.ServerCertificateCustomValidationCallback = CertificateHelper.ValidateCertificate;
+                handler.ServerCertificateValidationCallback = CertificateHelper.ValidateCertificate;
 
                 using (var httpClient = await this.SetHttpClientHeaders(new HttpClient(handler), bypassAutoLogin))
                 using (var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json"))
@@ -46,15 +46,26 @@ namespace Freebox.Modules
                 }
             }
         }
-        protected async Task<ApiResponse<TRes>> GetAsync<TRes>(Uri uri, bool bypassAutoLogin = false) where TRes : IFreeboxApiResponse
+        protected async Task<ApiResponse<TRes>> GetAsync<TRes>(Uri uri, object request = null,bool bypassAutoLogin = false) where TRes : IFreeboxApiResponse
         {
-            using (var handler = new HttpClientHandler())
+            using (var handler = new WinHttpHandler())
             {
-                handler.ServerCertificateCustomValidationCallback = CertificateHelper.ValidateCertificate;
+                handler.ServerCertificateValidationCallback = CertificateHelper.ValidateCertificate;
 
                 using (var httpClient = await this.SetHttpClientHeaders(new HttpClient(handler), bypassAutoLogin))
+                using (var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json"))
+                using (var preparedRequest = new HttpRequestMessage 
                 {
-                    var response = await httpClient.GetAsync(uri);
+                    Method = HttpMethod.Get,
+                    RequestUri = uri
+                })
+                {
+                    if(request != null)
+                    {
+                        preparedRequest.Content = content;
+                    }
+
+                    var response = await httpClient.SendAsync(preparedRequest);
 
                     return await PrepareResponse<TRes>(response);
                 }

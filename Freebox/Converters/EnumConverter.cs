@@ -8,7 +8,7 @@ namespace Freebox.Converters
     {
         public override bool CanConvert(Type objectType)
         {
-            return false;
+            return objectType != null && objectType.IsEnum;
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Ne pas passer de littéraux en paramètres localisés", Justification = "This exception is targeted towards developers")]
@@ -70,7 +70,20 @@ namespace Freebox.Converters
         public override void WriteJson(JsonWriter writer, object value,
             JsonSerializer serializer)
         {
-            throw new NotImplementedException();
+            var enumValue = value as Enum;
+
+            if(enumValue == null)
+            {
+#pragma warning disable CA1303 // Ne pas passer de littéraux en paramètres localisés
+                throw new ArgumentException("Not an enum", nameof(value));
+#pragma warning restore CA1303 // Ne pas passer de littéraux en paramètres localisés
+            }
+
+            var enumName = Enum.GetName(enumValue.GetType(), enumValue);
+
+#pragma warning disable CA1308 // Normaliser les chaînes en majuscules
+            serializer.Serialize(writer, value: enumName.ToLowerInvariant());
+#pragma warning restore CA1308 // Normaliser les chaînes en majuscules
         }
     }
 }

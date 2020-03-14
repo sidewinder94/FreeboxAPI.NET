@@ -20,8 +20,10 @@ namespace Freebox.Data.Modules.RRD.Requests
         [JsonConverter(typeof(FieldsToStringsArray))]
         public RrdFields? Fields { get; set; }
 
+        [JsonIgnore]
         public DateTime? DateStart { get; set; }
-        
+
+        [JsonIgnore]
         public DateTime? DateEnd { get; set; }
     }
 }
