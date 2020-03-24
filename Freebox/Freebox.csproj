@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <LangVersion>8.0</LangVersion>
     <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
     <RootNamespace>Freebox</RootNamespace>
     <UserSecretsId>9a78f708-3495-49bb-907e-4ca782ffad7a</UserSecretsId>
@@ -52,6 +53,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="System.Interactive.Async" Version="4.0.0" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
     <PackageReference Include="System.Net.Http.WinHttpHandler" Version="4.7.0" />
   </ItemGroup>

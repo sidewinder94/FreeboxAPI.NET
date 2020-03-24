@@ -10,6 +10,8 @@ using Freebox.Data.Modules.RRD.Requests;
 using System;
 using Freebox.Data.Modules.RRD.Responses;
 using System.Linq;
+using System.Collections.Generic;
+using Freebox.Data.Modules;
 
 namespace FreeboxApi.Tests
 {
@@ -134,6 +136,28 @@ namespace FreeboxApi.Tests
             Assert.IsTrue(rrd.Result.Data.Any(d => d.RateDown > 0));
             Assert.IsTrue(api.Login.SessionClose().Result.Success);
 
+        }
+
+        [TestMethod()]
+        public void TestContinuousRrd()
+        {
+            var ctSource = new CancellationTokenSource();
+
+            var api = FreeboxAPI.GetFreeboxApiInstance(appInfo, ctSource.Token).Result;
+
+            var listRrd = new List<ApiResponse<RrdResponse<Net>>>();
+
+            ctSource.CancelAfter(120000);
+            Task.Run(async () =>
+            {
+                await foreach (var rrd in api.RRD.StreamRrd<Net>(RrdFields.NetRateDown | RrdFields.NetRateUp, ctSource.Token))
+                {
+                    listRrd.Add(rrd);
+                }
+            }).Wait();
+            
+
+            Assert.IsTrue(listRrd.Count > 1);
         }
 
         [TestMethod()]
