@@ -27,4 +27,4 @@ jobs:
       run: nuget delete 0.0.3 FreeboxAPI.NET -Source GitHub
     - name: Push package
       run: nuget push Freebox\bin\Release\FreeboxAPI.NET.*.nupkg -Source GitHub
-      if: succeeded() || failed()
+      if: success()
