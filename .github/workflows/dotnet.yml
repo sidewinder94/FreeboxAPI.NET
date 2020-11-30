@@ -9,7 +9,7 @@ jobs:
 
     steps:
     - name: Setup Nuget.exe
-      uses: NuGet/setup-nuget@v1.0.2    
+      uses: NuGet/setup-nuget@v1.0.5    
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1.7.2
       with:
