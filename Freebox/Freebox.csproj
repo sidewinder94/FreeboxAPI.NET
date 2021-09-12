@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <LangVersion>8.0</LangVersion>
-    <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
+    <TargetFrameworks>netstandard2.1;net461;net472;net5</TargetFrameworks>
     <RootNamespace>Freebox</RootNamespace>
     <UserSecretsId>9a78f708-3495-49bb-907e-4ca782ffad7a</UserSecretsId>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
