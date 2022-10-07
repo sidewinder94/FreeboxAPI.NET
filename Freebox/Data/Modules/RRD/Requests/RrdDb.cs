@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Freebox.Data.Modules.RRD.Requests
+namespace Freebox.Data.Modules.RRD.Requests;
+
+internal enum RrdDb
 {
-    internal enum RrdDb
-    {
-        Net,
-        Temp,
-        Dsl,
-        Switch
-    }
+    Net,
+    Temp,
+    Dsl,
+    Switch
 }

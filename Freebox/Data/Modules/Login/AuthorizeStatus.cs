@@ -1,11 +1,10 @@
-﻿namespace Freebox.Data.Modules.Login
+﻿namespace Freebox.Data.Modules.Login;
+
+public enum AuthorizeStatus
 {
-    public enum AuthorizeStatus
-    {
-        Unknown,
-        Pending,
-        Timeout,
-        Granted,
-        Denied
-    }
+    Unknown,
+    Pending,
+    Timeout,
+    Granted,
+    Denied
 }

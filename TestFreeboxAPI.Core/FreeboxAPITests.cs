@@ -43,7 +43,7 @@ namespace FreeboxApi.Tests
             var ctSource = new CancellationTokenSource();
             ctSource.CancelAfter(5000);
 
-            var api = FreeboxAPI.GetFreeboxApiInstance(appInfo, ctSource.Token).Result;
+            var api = Freebox.FreeboxApi.GetFreeboxApiInstance(this.appInfo, ctSource.Token).Result;
             
             Assert.IsNotNull(api.ApiInfo.BoxModelName);
         }
@@ -54,7 +54,7 @@ namespace FreeboxApi.Tests
             var ctSource = new CancellationTokenSource();
             ctSource.CancelAfter(5000);
 
-            var api = FreeboxAPI.GetFreeboxApiInstance(appInfo, ctSource.Token).Result;
+            var api = Freebox.FreeboxApi.GetFreeboxApiInstance(this.appInfo, ctSource.Token).Result;
 
             var authorizeResult = api.Login.Authorize().Result;
 
@@ -74,7 +74,7 @@ namespace FreeboxApi.Tests
                 || authorizeTrack.Result.Status == AuthorizeStatus.Unknown
                 || (authorizeTrack.Result.Status == AuthorizeStatus.Pending && ctAuth.IsCancellationRequested));
 
-            System.Console.WriteLine(authorizeResult.Result.AppToken);
+            Console.WriteLine(authorizeResult.Result.AppToken);
         }
 
         [TestMethod()]
@@ -83,7 +83,7 @@ namespace FreeboxApi.Tests
             var ctSource = new CancellationTokenSource();
             ctSource.CancelAfter(5000);
 
-            var api = FreeboxAPI.GetFreeboxApiInstance(appInfo, ctSource.Token).Result;
+            var api = Freebox.FreeboxApi.GetFreeboxApiInstance(this.appInfo, ctSource.Token).Result;
 
             var appToken = this.Configuration.GetSection("app_token").Value;
 
@@ -99,7 +99,7 @@ namespace FreeboxApi.Tests
             var ctSource = new CancellationTokenSource();
             ctSource.CancelAfter(5000);
 
-            var api = FreeboxAPI.GetFreeboxApiInstance(appInfo, ctSource.Token).Result;
+            var api = Freebox.FreeboxApi.GetFreeboxApiInstance(this.appInfo, ctSource.Token).Result;
 
             var r = api.Login.SessionOpen().Result;
 
@@ -119,13 +119,13 @@ namespace FreeboxApi.Tests
             var ctSource = new CancellationTokenSource();
             ctSource.CancelAfter(5000);
 
-            var api = FreeboxAPI.GetFreeboxApiInstance(appInfo, ctSource.Token).Result;
+            var api = Freebox.FreeboxApi.GetFreeboxApiInstance(this.appInfo, ctSource.Token).Result;
 
             var session = api.Login.SessionOpen().Result;
 
             Assert.IsTrue(session.Success);
 
-            var rrd = api.RRD.GetRrd(new Fetch<Net>
+            var rrd = api.Rrd.GetRrd(new Fetch<NetResponseDb>
             {
                 DateStart = DateTime.Now.AddMinutes(-1),
                 DateEnd = DateTime.Now,
@@ -143,14 +143,14 @@ namespace FreeboxApi.Tests
         {
             var ctSource = new CancellationTokenSource();
 
-            var api = FreeboxAPI.GetFreeboxApiInstance(appInfo, ctSource.Token).Result;
+            var api = Freebox.FreeboxApi.GetFreeboxApiInstance(this.appInfo, ctSource.Token).Result;
 
-            var listRrd = new List<ApiResponse<RrdResponse<Net>>>();
+            var listRrd = new List<ApiResponse<RrdResponse<NetResponseDb>>>();
 
             ctSource.CancelAfter(120000);
             Task.Run(async () =>
             {
-                await foreach (var rrd in api.RRD.StreamRrd<Net>(RrdFields.NetRateDown | RrdFields.NetRateUp, ctSource.Token))
+                await foreach (var rrd in api.Rrd.StreamRrd<NetResponseDb>(RrdFields.NetRateDown | RrdFields.NetRateUp, ctSource.Token))
                 {
                     listRrd.Add(rrd);
                 }
@@ -166,10 +166,10 @@ namespace FreeboxApi.Tests
             var ctSource = new CancellationTokenSource();
             ctSource.CancelAfter(5000);
 
-            var api = FreeboxAPI.GetFreeboxApiInstance(appInfo, ctSource.Token).Result;
+            var api = Freebox.FreeboxApi.GetFreeboxApiInstance(this.appInfo, ctSource.Token).Result;
 
             // The session close method should clear the session token and indicate we are logged out, the test will evolve when it's the case
-            var lo = api.RRD.GetRrd(new Fetch<Net>()).Result;
+            var lo = api.Rrd.GetRrd(new Fetch<NetResponseDb>()).Result;
 
             Assert.IsFalse(string.IsNullOrWhiteSpace(api.Login.SessionToken));
             Assert.IsTrue(api.Login.LoggedIn);

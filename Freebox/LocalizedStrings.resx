@@ -123,4 +123,7 @@
   <data name="AuthentificationExceptionNotLogged" xml:space="preserve">
     <value>The application needs to be logged in to use this method</value>
   </data>
+  <data name="EnumConverter_WriteJson_Not_an_enum" xml:space="preserve">
+    <value>Not an enum</value>
+  </data>
 </root>
